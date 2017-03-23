@@ -29,15 +29,25 @@ class UserController extends Controller
     public function doLogin(Request $request){
         $email=$request->get('email');
         $pass=$request->get('password');
-        $data=DB::table('users')->where('email',$email)->orwhere('username',$email)->first();
-        $email_tmp=$data->email!=null?$data->email:'';
-        if(Auth::attempt(array('email'=>$email_tmp,'password'=>$pass))){
-            return redirect()->route('home');
+        $count=DB::table('users')->where('email',$email)->orwhere('username',$email)->count();
+        if($count>0){
+            $data=DB::table('users')->where('email',$email)->orwhere('username',$email)->first();
+            $email=$data->email;
+            $check_deleted=$data->deleted_at!=null?$data->deleted_at:null;
+            if($check_deleted!=null){
+                $erro="This account has been deleted";
+                return redirect()->route('login',['erro'=>$erro]);
+            }
+            else if(Auth::attempt(array('email'=>$email_tmp,'password'=>$pass))){
+                return redirect()->route('home');
+            }
+
         }
         else {
             $erro="Password, Username or Email is incorrect";
-            return redirect()->route('login',$erro);
+            return redirect()->route('login',['erro'=>$erro]);
         }
+
     }
 
     /**
