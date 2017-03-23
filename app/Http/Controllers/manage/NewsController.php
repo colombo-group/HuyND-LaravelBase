@@ -43,7 +43,7 @@ class NewsController extends Controller
             $erro="News existed";
             return redirect()->route('add_news',['erro'=>$erro,'content'=>$content]);
         }
-
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         $created_at=date('Y-m-d G:i:s');
         DB::table('news')->insert(array('title'=>$title,'img'=>$img,'content'=>$content,'created_at'=>$created_at));
         return redirect()->route('news');
@@ -79,6 +79,7 @@ class NewsController extends Controller
             $request->file('img')->move('upload/news/',$img);
         }
         $content=$request->get('content');
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         $updated_at=date('Y-m-d G:i:s');
         DB::table('news')->where('id',$id)->update(array('title'=>$title,'img'=>$img,'content'=>$content,'updated_at'=>$updated_at));
         return redirect()->route('news');
