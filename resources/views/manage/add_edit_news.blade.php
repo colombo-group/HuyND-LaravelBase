@@ -26,6 +26,10 @@
                             <input type="file" name="img" {{ isset($arr->img)?'':'required' }}>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-9">{{ Request::get('erro_img')!=null?Request::get('erro_img'):'' }}</div>
+                    </div>
                     @if(isset($arr->img))
                         <div class="row col-xs-offset-3">
                             <img src="{{ asset('upload/news/'.$arr->img) }}">

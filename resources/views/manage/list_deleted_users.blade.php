@@ -10,10 +10,8 @@
 					<th>Email</th>
 					<th></th>
 				</tr>
-			<?php
-				foreach($deleted_users as $rows)
-				{
-			?>
+
+				@foreach($deleted_users as $rows)
 				<tr>
 					<td>{{ $rows->name }}</td>
 					<td>{{ $rows->email }}</td>
@@ -22,9 +20,9 @@
 						<a href="{{ url(route('restore',$rows->id)) }}" onclick="return window.confirm('Are you sure?');">Restore</a>
 					</td>
 				</tr>
-			<?php } ?>
+			@endforeach
 			</table>
-			{{ $deleted_users->links() }}
+
 		</div>
 	</div>
 </div>

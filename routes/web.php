@@ -60,7 +60,7 @@ Route::group(array("prefix"=>"manage","middleware"=>"auth"),function(){
 
         Route::post('add','manage\NewsController@do_Add');
         // delete news
-        Route::get('delete_news/{id}','manage\NewController@delete')->name('delete_news');
+        Route::get('delete_news/{id}','manage\NewsController@delete')->name('delete_news');
         //edit news
         Route::get('edit_news/{id}','manage\NewsController@edit')->name('edit_news');
         //get new news's infor

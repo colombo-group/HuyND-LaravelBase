@@ -11,6 +11,7 @@
                         <th>Position</th>
                         <th style="width:100px;"></th>
                     </tr>
+
                     <?php
                     foreach($user as $rows)
                     {
