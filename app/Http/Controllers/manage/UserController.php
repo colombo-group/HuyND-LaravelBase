@@ -19,59 +19,6 @@ class UserController extends Controller
     }
 
     /**
-     * view login form
-     *
-     */
-    public function login(){
-        if(!Auth::check()) {
-            return view('auth.login');
-        }
-        else return redirect()->route('home');
-    }
-    /**
-     * get login's infor
-     * check whether infor true or false
-     *
-     * @return path return home if login's infor true else return login with an erro
-     */
-    public function doLogin(Request $request){
-        $email=$request->get('email');
-        $pass=$request->get('password');
-        $count1=$this->repo->count('email',"=",$email);
-        $count2=$this->repo->count('username',"=",$email);
-        $test_del1=$this->repo->getOneDeletedRecord('email',$email);
-        $test_del2=$this->repo->getOneDeletedRecord('username',$email);
-        if($count1>0||$count2>0){
-            if($count1>0) $data=$this->repo->findByField('email',$email);
-//            else $data=$this->repo->findByField('username',$email);
-            var_dump($data);
-            $email=$data->email;
-            $check_deleted=$data->deleted_at!=null?$data->deleted_at:null;
-            if($check_deleted!=null){
-                $erro="This account has been deleted";
-                return redirect()->route('login',['erro'=>$erro]);
-            }
-            else if(Auth::attempt(array('email'=>$email,'password'=>$pass))){
-                return redirect()->route('home');
-            }
-            else {
-                $erro="Password, Username or Email is incorrect";
-                return redirect()->route('login',['erro'=>$erro]);
-            }
-
-        }
-        else if($test_del1>0||$test_del2>0){
-            $erro="This account had been removed";
-            return redirect()->route('login',['erro'=>$erro]);
-        }
-        else {
-            $erro="Password, Username or Email is incorrect";
-            return redirect()->route('login',['erro'=>$erro]);
-        }
-
-    }
-
-    /**
      * show list of user's accounts
      *
      * @return file and object
