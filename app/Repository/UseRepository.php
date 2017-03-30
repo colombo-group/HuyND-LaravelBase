@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Repository;
-
-use App\Repository\Repository;
+use Prettus\Repository\Contracts\RepositoryInterface;
 use App\User;
+use App\News;
 use Illuminate\Container\Container as App;
 
-abstract class UseRepository implements Repository
+
+abstract class UseRepository implements RepositoryInterface
 {
     /**
     * @var Model $model
@@ -45,14 +46,14 @@ abstract class UseRepository implements Repository
     }
 
     /**
-    * get all record
+    * get all record and paginate
      *
      * @return object
      */
-    public function getAll($record)
-    {
-        return $this->model->paginate($record);
-    }
+   public function paginate($limit = null, $columns = ['*'])
+   {
+       return $this->model->paginate($limit);
+   }
 
     /**
     * get some records with some conditions and paginate them
@@ -71,6 +72,10 @@ abstract class UseRepository implements Repository
     {
         return $this->model->onlyTrashed()->paginate($RecordPerPage);
     }
+    public function findByField($field, $value, $columns = ['*'])
+    {
+        return $this->model->where($field,$value)->first();
+    }
 
     /**
     * get one softing deleted record with a condition
@@ -81,20 +86,15 @@ abstract class UseRepository implements Repository
     }
 
     /**
-    * check whether value existed or not
-     */
-    public function checkConcidence($id, string $col, $val)
-    {
-        return $this->model->where('id','<>',$id)->where($col,'=',$val)->count();
-    }
-
-    /**
-    * create new record
+     * Save a new entity in repository
      *
-     * @return object
+     * @param array $attributes
+     *
+     * @return mixed
      */
-    public function create(array $attr){
-        return $this->model->create($attr);
+    public function firstOrCreate(array $attributes = [])
+    {
+        return $this->model->firstOrCreate($attributes);
     }
 
     /**
@@ -104,8 +104,9 @@ abstract class UseRepository implements Repository
      * @param integer $id
      * @return Query
      */
-    public function update(array $attr,$id){
-        return $this->model->where('id',$id)->update($attr);
+    public function update(array $attributes, $id)
+    {
+        return $this->model->where('id',$id)->update($attributes);
     }
 
     /**
@@ -128,20 +129,7 @@ abstract class UseRepository implements Repository
     {
         return $this->model->where($col,$condition ,$val)->count();
     }
-
-    /**
-    * get one record
-     *
-     * @param string $col
-     * @param string|integer
-     *
-     * @return object
-     */
-    public function getOneRecord(string $col, $val)
-    {
-        return $this->model->where($col,$val)->first();
-    }
-
+    
     /**
     * delete record tempororyly
      *
@@ -162,9 +150,23 @@ abstract class UseRepository implements Repository
     /**
     * restore record
      *
+     * @param integer $id
+     *
      * @return Query
      */
-    public function restore($id){
+    public function Restore($id){
         return $this->model->withTrashed()->where('id',$id)->restore();
+    }
+    /**
+     * Find data by id
+     *
+     * @param       $id
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function find($id, $columns = ['*'])
+    {
+        return $this->model->find($id);
     }
 }

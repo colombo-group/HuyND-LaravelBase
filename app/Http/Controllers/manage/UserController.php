@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
 use Hash;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Validator;
+
+
 class UserController extends Controller
 {
     private $repo;
@@ -38,8 +42,9 @@ class UserController extends Controller
         $test_del1=$this->repo->getOneDeletedRecord('email',$email);
         $test_del2=$this->repo->getOneDeletedRecord('username',$email);
         if($count1>0||$count2>0){
-            if($count1>0) $data=$this->repo->getOneRecord('email',$email);
-            else $data=$this->repo->getOneRecord('username',$email);
+            if($count1>0) $data=$this->repo->findByField('email',$email);
+//            else $data=$this->repo->findByField('username',$email);
+            var_dump($data);
             $email=$data->email;
             $check_deleted=$data->deleted_at!=null?$data->deleted_at:null;
             if($check_deleted!=null){
@@ -72,7 +77,7 @@ class UserController extends Controller
      * @return file and object
      */
     public function show(){
-        $data['user']=$this->repo->getAll(5);
+        $data['user']=$this->repo->paginate(5);
         return view('manage.list_user',$data);
     }
 
@@ -83,8 +88,7 @@ class UserController extends Controller
      * @return file and object or file
      */
     public function edit($id){
-        $data['user']=$this->repo->getOneRecord('id',$id);
-        echo User::where('deleted_at','<>',null)->count();
+        $data['user']=$this->repo->find($id);
         if(Auth::id()==$id||(Auth::user()->id_acc==1&&$data['user']->id_acc==2)) {
             return view('manage.edit_user', $data);
         }
@@ -98,39 +102,29 @@ class UserController extends Controller
      * @return path
      */
     public function do_edit(Request $request,$id){
-        if($request->get('email')!=null){
-            $email=$request->get('email');
-            $count=$this->repo->checkConcidence($id,'email',$email);
-            if($count>0){
-                $erro="Email".$email." existed!!";
-                return redirect()->route('edit_user',['erro_exist1'=>$erro,'id'=>$id]);
+        //check email existed or not
+            $email=["email"=>$request->get('email'),"username"=>$request->get('username')];
+            $rules = array('email' => 'unique:users,email,'.$id.',id');
+            $validate= Validator::make($email,$rules);
+            if($validate->fails()) {
+                $erro = "Email " . $email['email'] . " existed!!";
+                return redirect()->route('edit_user', ['erro_exist1' => $erro, 'id' => $id]);
             }
-            $attr=['email'=>$email];
-            $this->repo->update($attr,$id);
-        }
-        if($request->get('username')!=null){
-            $count=$this->repo->checkConcidence($id,'username',$email);
-            $email=$request->get('username');
-            $data=$this->repo->count("username","=",$email);
-            if($data>1){
-                $erro="Username ".$email." existed!!";
+        //check username existed or not
+            $rules = array('username' => 'unique:users,username,'.$id.',id');
+            $validate= Validator::make($email,$rules);
+            if($validate->fails()){
+                $erro="Username ".$email['username']." existed!!";
                 return redirect()->route('edit_user',['erro_exist2'=>$erro,'id'=>$id]);
             }
-            $attr=array('username'=>$email);
-            $this->repo->update($attr,$id);
-        }
-        $fullname=$request->get('fullname');
+            $fullname=$request->get('fullname');
         if($request->get('password1')!=null){
-            if($request->get('password1')!=$request->get('password2')){
-                $erro="Password isnot concidence";
+            if($request->get('password1')!=$request->get('password2')||strlen($request->get('password1'))<6){
+                $erro="Password isnot concidence or less than 6 characters";
                 return redirect()->route('edit_user',['id'=>$id,'erro'=>$erro]);
             }
-            else if($request->get('password1')==$request->get('password2')){
+            else{
                 $password=$request->get('password1');
-                if(strlen($password)<6){
-                    $erro="Password must have at least 6 characters";
-                    return redirect()->route('edit_user',['id'=>$id,'erro'=>$erro]);
-                }
                 $password=Hash::make($password);
                 $attr=['password'=>$password];
                 $this->repo->update($attr,$id);
@@ -140,7 +134,7 @@ class UserController extends Controller
         $slogan=$request->get('slogan')!=null?$request->get('slogan'):'';
         $birthday=$request->get('birthday')!=null?$request->get('birthday'):null;
         $address=$request->get('address')!=null?$request->get('address'):'';
-        $attr=['name'=>$fullname,'gender'=>$gender,'slogan'=>$slogan,'birthday'=>$birthday,'address'=>$address];
+        $attr=['email'=>$email['email'],'username'=>$email['username'],'name'=>$fullname,'gender'=>$gender,'slogan'=>$slogan,'birthday'=>$birthday,'address'=>$address];
         $this->repo->update($attr,$id);
         return redirect()->route('list_user');
     }
@@ -152,7 +146,7 @@ class UserController extends Controller
      * @return path or file
      */
     public function delete($id){
-        $user=$this->repo->getOneRecord('id',$id);
+        $user=$this->repo->find($id);
         if(Auth::user()->id_acc==1&&$user->id_acc==2) {
             $this->repo->softDel($id);
             return redirect()->route('deleted_user');

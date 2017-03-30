@@ -6,8 +6,9 @@
  * Time: 09:25
  */
 namespace App\Repository;
-use App\Repository\Repository;
 use App\Repository\UseRepository;
+use Prettus\Repository\Contracts\RepositoryInterface;
+
 class UserRepository extends UseRepository {
     function model()
     {

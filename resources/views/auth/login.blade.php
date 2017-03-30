@@ -17,7 +17,13 @@
                                 <input id="email" type="text" class="form-control" name="email"  required autofocus>
                             </div>
                         </div>
-
+                        @if ($errors->has('email'))
+                            <div class="col-md-6 col-xs-offset-3">
+                            <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                            </span>
+                            </div>
+                        @endif
                         <div class="form-group">
                             <label for="password" class="col-md-4 control-label">Password</label>
 
@@ -27,7 +33,21 @@
                             </div>
                         </div>
 
-
+                        @if ($errors->has('password'))
+                            <div class="col-md-6 col-xs-offset-3">
+                            <span class="help-block">
+                                        <strong>{{ $errors->first('password') }}</strong>
+                            </span></div>
+                        @endif
+                        <div class="form-group">
+                            <div class="col-md-6 col-md-offset-4">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="remember"> Remember Me
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
                                 <button type="submit" class="btn btn-primary">
@@ -39,13 +59,6 @@
                                 </a>
                             </div>
                         </div>
-                        @if(Request::get('erro')!=null)
-                        <div class="form-group">
-                            <div class="col-md-8 col-md-offset-4">
-                                {{ Request::get('erro') }}
-                            </div>
-                        </div>
-                            @endif
                     </form>
                 </div>
             </div>

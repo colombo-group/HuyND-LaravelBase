@@ -20,8 +20,8 @@ Route::get('/', function () {
 Auth::routes();
 
 //login
-Route::get('login','manage\UserController@login')->name('login');
-Route::post('login','manage\UserController@doLogin');
+Route::get('login','Auth\LoginController@showLoginForm')->name('login');
+Route::post('login','Auth\LoginController@login');
 //logout
 Route::get('logout',function (){
     Auth::logout();
@@ -58,7 +58,7 @@ Route::group(array("prefix"=>"manage","middleware"=>"auth"),function(){
         //add new news
         Route::get('add','manage\NewsController@add')->name('add_news');
 
-        Route::post('add','manage\NewsController@do_Add');
+        Route::post('add','manage\NewsController@do_add');
         // delete news
         Route::get('delete_news/{id}','manage\NewsController@delete')->name('delete_news');
         //edit news
